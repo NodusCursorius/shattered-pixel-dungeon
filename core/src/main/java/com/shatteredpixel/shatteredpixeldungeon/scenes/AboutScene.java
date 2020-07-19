@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
@@ -55,6 +56,42 @@ public class AboutScene extends PixelScene {
 		Component content = list.content();
 		content.clear();
 
+		//*** Shattered Pixel Dungeon Ash Credits ***
+
+		final int ASH_COLOR = 0x99CCFF;
+		CreditsBlock ash = new CreditsBlock(true, ASH_COLOR,
+				"Shattered Pixel Dungeon Ash",
+				new Image( Assets.Interfaces.ASH_ICON),
+				"Modified by: _Nodus Cursorius_\nBased on Shattered Pixel Dungeon",
+				null,
+				null);
+		ash.setRect((w - fullWidth)/2f, 6, 120, 0);
+		content.add(ash);
+
+		//*** Free Stock Music Credits ***
+
+		CreditsBlock freestockmusic = new CreditsBlock(true,
+				Window.TITLE_COLOR,
+				null,
+				null,
+				"Shattered Pixel Dungeon Ash uses the following sound samples from _free-stock-music.com_:\n\n" +
+
+						"Attribution-ShareAlike 4.0 International\n(CC BY-SA 4.0):\n" +
+						"_Mountain Trials_ by _Joshua McLean_\n" +
+						"\thttp://mrjoshuamclean.com\n" +
+						"_Winter Night_ by _Alexander Nakarada_\n" +
+						"\thttps://www.serpentsoundstudios.com\n\n" +
+
+						"Creative Commons Attribution 3.0 Unported License:\n" +
+						"_Silent Words_ by _Schematist_\n" +
+						"\thttp://www.schematistmusic.com",
+				"www.free-stock-music.com",
+				"https://www.free-stock-music.com");
+		freestockmusic.setRect(ash.left()-10, ash.bottom() + 8, colWidth+20, 0);
+		content.add(freestockmusic);
+
+		addLine(freestockmusic.top() - 4, content);
+
 		//*** Shattered Pixel Dungeon Credits ***
 
 		CreditsBlock shpx = new CreditsBlock(true, Window.SHPX_COLOR,
@@ -63,8 +100,10 @@ public class AboutScene extends PixelScene {
 				"Developed by: _Evan Debenham_\nBased on Pixel Dungeon's open source",
 				"ShatteredPixel.com",
 				"https://ShatteredPixel.com");
-		shpx.setRect((w - fullWidth)/2f, 6, 120, 0);
+		shpx.setRect((w - fullWidth)/2f, freestockmusic.bottom() + 8, 120, 0);
 		content.add(shpx);
+
+		addLine(shpx.top() - 4, content);
 
 		CreditsBlock alex = new CreditsBlock(false, Window.SHPX_COLOR,
 				"Hero Art & Design:",
