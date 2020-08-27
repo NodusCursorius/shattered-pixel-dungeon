@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -416,7 +416,7 @@ public class Potion extends Item {
 		final int color = splashColor();
 
 		Char ch = Actor.findChar(cell);
-		if (ch != null) {
+		if (ch != null && ch.alignment == Char.Alignment.ALLY) {
 			Buff.detach(ch, Burning.class);
 			Buff.detach(ch, Ooze.class);
 			Splash.at( ch.sprite.center(), color, 5 );
@@ -426,7 +426,7 @@ public class Potion extends Item {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		return 30 * quantity;
 	}
 	
@@ -538,8 +538,10 @@ public class Potion extends Item {
 		@Override
 		public Item sampleOutput(ArrayList<Item> ingredients) {
 			return new WndBag.Placeholder(ItemSpriteSheet.POTION_HOLDER){
-				{
-					name = Messages.get(SeedToPotion.class, "name");
+
+				@Override
+				public String name() {
+					return Messages.get(Potion.SeedToPotion.class, "name");
 				}
 				
 				@Override

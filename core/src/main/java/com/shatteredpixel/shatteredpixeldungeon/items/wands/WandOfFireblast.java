@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,14 +44,13 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class WandOfFireblast extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_FIREBOLT;
 
-		collisionProperties = Ballistica.STOP_TERRAIN;
+		collisionProperties = Ballistica.STOP_TERRAIN | Ballistica.OPEN_DOORS;
 	}
 
 	//1x/2x/3x damage
@@ -70,6 +69,7 @@ public class WandOfFireblast extends DamageWand {
 	protected void onZap( Ballistica bolt ) {
 
 		ArrayList<Char> affectedChars = new ArrayList<>();
+		ArrayList<Integer> adjacentCells = new ArrayList<>();
 		for( int cell : cone.cells ){
 
 			//ignore caster cell
@@ -78,13 +78,27 @@ public class WandOfFireblast extends DamageWand {
 			}
 
 			//only ignite cells directly near caster if they are flammable
-			if (!Dungeon.level.adjacent(bolt.sourcePos, cell) || Dungeon.level.flamable[cell]){
+			if (Dungeon.level.adjacent(bolt.sourcePos, cell) && !Dungeon.level.flamable[cell]){
+				adjacentCells.add(cell);
+			} else {
 				GameScene.add( Blob.seed( cell, 1+chargesPerCast(), Fire.class ) );
 			}
 
 			Char ch = Actor.findChar( cell );
 			if (ch != null) {
 				affectedChars.add(ch);
+			}
+		}
+
+		//ignite cells that share a side with an adjacent cell, are flammable, and are further from the source pos
+		//This prevents short-range casts not igniting barricades or bookshelves
+		for (int cell : adjacentCells){
+			for (int i : PathFinder.NEIGHBOURS4){
+				if (Dungeon.level.trueDistance(cell+i, bolt.sourcePos) > Dungeon.level.trueDistance(cell, bolt.sourcePos)
+						&& Dungeon.level.flamable[cell+i]
+						&& Fire.volumeAt(cell+i, Fire.class) == 0){
+					GameScene.add( Blob.seed( cell+i, 1+chargesPerCast(), Fire.class ) );
+				}
 			}
 		}
 
@@ -117,11 +131,11 @@ public class WandOfFireblast extends DamageWand {
 	protected void fx( Ballistica bolt, Callback callback ) {
 		//need to perform flame spread logic here so we can determine what cells to put flames in.
 
-		// 4/6/8 distance
-		int maxDist = 2 + 2*chargesPerCast();
+		// 5/7/9 distance
+		int maxDist = 3 + 2*chargesPerCast();
 		int dist = Math.min(bolt.dist, maxDist);
 
-		cone = new ConeAOE( bolt.sourcePos, bolt.path.get(dist),
+		cone = new ConeAOE( bolt,
 				maxDist,
 				30 + 20*chargesPerCast(),
 				collisionProperties | Ballistica.STOP_TARGET);

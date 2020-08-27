@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -33,8 +34,12 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndStory;
 import com.watabou.gltextures.TextureCache;
@@ -45,7 +50,6 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.NoosaScript;
 import com.watabou.noosa.NoosaScriptNoLighting;
 import com.watabou.noosa.SkinnedBlock;
-import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.DeviceCompat;
 
 import java.io.FileNotFoundException;
@@ -139,8 +143,11 @@ public class InterlevelScene extends PixelScene {
 		else if (loadingDepth <= 25)    loadingAsset = Assets.Interfaces.LOADING_HALLS;
 		else                            loadingAsset = Assets.Interfaces.SHADOW;
 		
+		//slow down transition when displaying an install prompt
+		if (Updates.isInstallable()){
+			fadeTime += 0.5f; //adds 1 second total
 		//speed up transition when debugging
-		if (DeviceCompat.isDebug()){
+		} else if (DeviceCompat.isDebug()){
 			fadeTime /= 2;
 		}
 		
@@ -190,6 +197,30 @@ public class InterlevelScene extends PixelScene {
 		);
 		align(message);
 		add( message );
+
+		if (Updates.isInstallable()){
+			StyledButton install = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "install")){
+				@Override
+				public void update() {
+					super.update();
+					float p = timeLeft / fadeTime;
+					if (phase == Phase.FADE_IN)         alpha(1 - p);
+					else if (phase == Phase.FADE_OUT)   alpha(p);
+					else                                alpha(1);
+				}
+
+				@Override
+				protected void onClick() {
+					super.onClick();
+					Updates.launchInstall();
+				}
+			};
+			install.icon(Icons.get(Icons.CHANGES));
+			install.textColor(Window.SHPX_COLOR);
+			install.setSize(install.reqWidth()+5, 20);
+			install.setPos((Camera.main.width - install.width())/2, (Camera.main.height - message.bottom())/3 + message.bottom());
+			add(install);
+		}
 		
 		phase = Phase.FADE_IN;
 		timeLeft = fadeTime;

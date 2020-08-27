@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ShopkeeperSprite;
@@ -48,6 +50,10 @@ public class Shopkeeper extends NPC {
 	protected boolean act() {
 
 		throwItem();
+
+		if (Dungeon.level.heroFOV[pos]){
+			Notes.add(Notes.Landmark.SHOP);
+		}
 		
 		sprite.turnTo( pos, Dungeon.hero.pos );
 		spend( TICK );
@@ -66,6 +72,8 @@ public class Shopkeeper extends NPC {
 	
 	public void flee() {
 		destroy();
+
+		Notes.remove(Notes.Landmark.SHOP);
 		
 		sprite.killAndErase();
 		CellEmitter.get( pos ).burst( ElmoParticle.FACTORY, 6 );
@@ -86,9 +94,22 @@ public class Shopkeeper extends NPC {
 	public boolean reset() {
 		return true;
 	}
+
+	//shopkeepers are greedy!
+	public static int sellPrice(Item item){
+		return item.value() * 5 * (Dungeon.depth / 5 + 1);
+	}
 	
 	public static WndBag sell() {
 		return GameScene.selectItem( itemSelector, WndBag.Mode.FOR_SALE, Messages.get(Shopkeeper.class, "sell"));
+	}
+
+	public static boolean willBuyItem( Item item ){
+		if (item.value() < 0)                                               return false;
+		if (item.unique && !item.stackable)                                 return false;
+		if (item instanceof Armor && ((Armor) item).checkSeal() != null)    return false;
+		if (item.isEquipped(Dungeon.hero) && item.cursed)                   return false;
+		return true;
 	}
 	
 	private static WndBag.Listener itemSelector = new WndBag.Listener() {

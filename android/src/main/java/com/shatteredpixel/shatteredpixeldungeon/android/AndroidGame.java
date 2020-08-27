@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.services.news.News;
+import com.shatteredpixel.shatteredpixeldungeon.services.news.NewsImpl;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.UpdateImpl;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.watabou.noosa.Game;
@@ -47,35 +49,45 @@ public class AndroidGame extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		instance = this;
-		
-		try {
-			Game.version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
-		} catch (PackageManager.NameNotFoundException e) {
-			Game.version = "???";
-		}
-		try {
-			Game.versionCode = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionCode;
-		} catch (PackageManager.NameNotFoundException e) {
-			Game.versionCode = 0;
-		}
-		
-		if (UpdateImpl.supportsUpdates()){
-			Updates.service = UpdateImpl.getUpdateService();
-		}
 
-		FileUtils.setDefaultFileProperties( Files.FileType.Local, "" );
-		
-		// grab preferences directly using our instance first
-		// so that we don't need to rely on Gdx.app, which isn't initialized yet.
-		// Note that we use a different prefs name on android for legacy purposes,
-		// this is the default prefs filename given to an android app (.xml is automatically added to it)
-		SPDSettings.set(instance.getPreferences("ShatteredPixelDungeon"));
+		//there are some things we only need to set up on first launch
+		if (instance == null) {
+
+			instance = this;
+
+			try {
+				Game.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			} catch (PackageManager.NameNotFoundException e) {
+				Game.version = "???";
+			}
+			try {
+				Game.versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+			} catch (PackageManager.NameNotFoundException e) {
+				Game.versionCode = 0;
+			}
+
+			if (UpdateImpl.supportsUpdates()) {
+				Updates.service = UpdateImpl.getUpdateService();
+			}
+			if (NewsImpl.supportsNews()) {
+				News.service = NewsImpl.getNewsService();
+			}
+
+			FileUtils.setDefaultFileProperties(Files.FileType.Local, "");
+
+			// grab preferences directly using our instance first
+			// so that we don't need to rely on Gdx.app, which isn't initialized yet.
+			// Note that we use a different prefs name on android for legacy purposes,
+			// this is the default prefs filename given to an android app (.xml is automatically added to it)
+			SPDSettings.set(instance.getPreferences("ShatteredPixelDungeon"));
+
+		} else {
+			instance = this;
+		}
 		
 		//set desired orientation (if it exists) before initializing the app.
 		if (SPDSettings.landscape() != null) {
-			AndroidGame.instance.setRequestedOrientation( SPDSettings.landscape() ?
+			instance.setRequestedOrientation( SPDSettings.landscape() ?
 					ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE :
 					ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT );
 		}
@@ -102,7 +114,12 @@ public class AndroidGame extends AndroidApplication {
 		view = (GLSurfaceView)graphics.getView();
 		
 	}
-	
+
+	@Override
+	public void onBackPressed() {
+		//do nothing, game should catch all back presses
+	}
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);

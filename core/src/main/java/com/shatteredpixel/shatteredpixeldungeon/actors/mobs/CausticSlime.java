@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ public class CausticSlime extends Slime {
 		int ofs;
 		do {
 			ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
-		} while (!Dungeon.level.passable[pos + ofs]);
+		} while (Dungeon.level.solid[pos + ofs]);
 		Dungeon.level.drop( new GooBlob(), pos + ofs ).sprite.drop( pos );
 	}
 }

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -279,7 +279,7 @@ public abstract class Wand extends Item {
 	@Override
 	public int buffedLvl() {
 		int lvl = super.buffedLvl();
-		if (curUser != null && !(this instanceof WandOfMagicMissile)) {
+		if (curUser != null) {
 			WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
 			if (buff != null && buff.level() > lvl){
 				return buff.level();
@@ -366,7 +366,7 @@ public abstract class Wand extends Item {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		int price = 75;
 		if (cursed && cursedKnown) {
 			price /= 2;

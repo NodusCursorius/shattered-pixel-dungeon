@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -144,7 +145,7 @@ public class TalismanOfForesight extends Artifact {
 
 				//starts at 200 degrees, loses 8% per tile of distance
 				float angle = Math.round(200*(float)Math.pow(0.92, dist));
-				ConeAOE cone = new ConeAOE(curUser.pos, target, angle);
+				ConeAOE cone = new ConeAOE(new Ballistica(curUser.pos, target, Ballistica.STOP_TARGET), angle);
 
 				int earnedExp = 0;
 				boolean noticed = false;
@@ -156,20 +157,16 @@ public class TalismanOfForesight extends Artifact {
 					}
 
 					if (Dungeon.level.secret[cell]) {
-						Dungeon.level.discover(cell);
+						int oldValue = Dungeon.level.map[cell];
+						GameScene.discoverTile(cell, oldValue);
+						Dungeon.level.discover( cell );
+						ScrollOfMagicMapping.discover(cell);
+						noticed = true;
 
-						if (Dungeon.level.heroFOV[cell]) {
-							int oldValue = Dungeon.level.map[cell];
-							GameScene.discoverTile(cell, Dungeon.level.map[cell]);
-							Dungeon.level.discover( cell );
-							ScrollOfMagicMapping.discover(cell);
-							noticed = true;
-
-							if (oldValue == Terrain.SECRET_TRAP){
-								earnedExp += 10;
-							} else if (oldValue == Terrain.SECRET_DOOR){
-								earnedExp += 100;
-							}
+						if (oldValue == Terrain.SECRET_TRAP){
+							earnedExp += 10;
+						} else if (oldValue == Terrain.SECRET_DOOR){
+							earnedExp += 100;
 						}
 					}
 
@@ -194,8 +191,8 @@ public class TalismanOfForesight extends Artifact {
 				}
 
 				exp += earnedExp;
-				if (exp >= 50 + 50*level() && level() < levelCap) {
-					exp -= 50 + 50*level();
+				if (exp >= 100 + 50*level() && level() < levelCap) {
+					exp -= 100 + 50*level();
 					upgrade();
 					GLog.p( Messages.get(TalismanOfForesight.class, "levelup") );
 				}
@@ -214,7 +211,8 @@ public class TalismanOfForesight extends Artifact {
 				GameScene.updateFog();
 
 				curUser.sprite.zap(target);
-				Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+				curUser.spend(Actor.TICK);
+				Sample.INSTANCE.play(Assets.Sounds.SCAN);
 				if (noticed) Sample.INSTANCE.play(Assets.Sounds.SECRET);
 
 			}
@@ -297,10 +295,12 @@ public class TalismanOfForesight extends Artifact {
 				warn = false;
 			}
 
-			//fully charges in 2000 turns at lvl=0, scaling to 1000 turns at lvl = 10.
 			LockedFloor lock = target.buff(LockedFloor.class);
 			if (charge < chargeCap && !cursed && (lock == null || lock.regenOn())) {
-				partialCharge += 0.05f+(level()*0.005f);
+				//fully charges in 2000 turns at +0, scaling to 1000 turns at +10.
+				float chargeGain = (0.05f+(level()*0.005f));
+				chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
+				partialCharge += chargeGain;
 
 				if (partialCharge > 1 && charge < chargeCap) {
 					partialCharge--;

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
@@ -106,6 +107,12 @@ public class SandalsOfNature extends Artifact {
 	}
 
 	@Override
+	public String name() {
+		if (level() == 0)   return super.name();
+		else                return Messages.get(this, "name_" + level());
+	}
+
+	@Override
 	public String desc() {
 		String desc = Messages.get(this, "desc_" + (level()+1));
 
@@ -134,7 +141,6 @@ public class SandalsOfNature extends Artifact {
 		else if (level() == 0)  image = ItemSpriteSheet.ARTIFACT_SHOES;
 		else if (level() == 1)  image = ItemSpriteSheet.ARTIFACT_BOOTS;
 		else if (level() >= 2)  image = ItemSpriteSheet.ARTIFACT_GREAVES;
-		name = Messages.get(this, "name_" + (level()+1));
 		return super.upgrade();
 	}
 
@@ -158,7 +164,6 @@ public class SandalsOfNature extends Artifact {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
-		if (level() > 0) name = Messages.get(this, "name_" + level());
 		if (bundle.contains(SEEDS))
 			Collections.addAll(seeds , bundle.getClassArray(SEEDS));
 		if (level() == 1)  image = ItemSpriteSheet.ARTIFACT_SHOES;
@@ -170,7 +175,13 @@ public class SandalsOfNature extends Artifact {
 		public void charge() {
 			if (level() > 0 && charge < target.HT){
 				//gain 1+(1*level)% of the difference between current charge and max HP.
-				charge+= (Math.round( (target.HT-charge) * (.01+ level()*0.01) ));
+				float chargeGain = (target.HT-charge) * (.01f+ level()*0.01f);
+				chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
+				partialCharge += Math.max(0, chargeGain);
+				while (partialCharge > 1){
+					charge++;
+					partialCharge--;
+				}
 				updateQuickslot();
 			}
 		}

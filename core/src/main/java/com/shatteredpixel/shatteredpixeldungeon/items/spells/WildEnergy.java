@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,8 +59,8 @@ public class WildEnergy extends TargetedSpell {
 
 				hero.belongings.charge(1f);
 				for (int i = 0; i < 4; i++){
-					if (hero.belongings.misc1 instanceof Artifact) ((Artifact) hero.belongings.misc1).charge(hero);
-					if (hero.belongings.misc2 instanceof Artifact) ((Artifact) hero.belongings.misc2).charge(hero);
+					if (hero.belongings.artifact instanceof Artifact)   ((Artifact) hero.belongings.artifact).charge(hero);
+					if (hero.belongings.misc instanceof Artifact)       ((Artifact) hero.belongings.misc).charge(hero);
 				}
 
 				Buff.affect(hero, Recharging.class, 8f);
@@ -74,7 +74,7 @@ public class WildEnergy extends TargetedSpell {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		//prices of ingredients, divided by output quantity
 		return Math.round(quantity * ((50 + 100) / 5f));
 	}

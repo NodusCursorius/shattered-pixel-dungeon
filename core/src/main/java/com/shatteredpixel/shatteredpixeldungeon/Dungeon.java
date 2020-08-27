@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,7 +212,7 @@ public class Dungeon {
 		Blacksmith.Quest.reset();
 		Imp.Quest.reset();
 
-		Generator.reset();
+		Generator.fullReset();
 		hero = new Hero();
 		hero.live();
 		
@@ -366,11 +366,8 @@ public class Dungeon {
 		Dungeon.level = level;
 		Mob.restoreAllies( level, pos );
 		Actor.init();
-		
-		Actor respawner = level.respawner();
-		if (respawner != null) {
-			Actor.addDelayed( respawner, level.respawnTime() );
-		}
+
+		level.addRespawner();
 
 		hero.pos = pos;
 		

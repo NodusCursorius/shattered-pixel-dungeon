@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.HeavyBoomerang;
-import com.shatteredpixel.shatteredpixeldungeon.levels.features.Maze;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.TenguDartTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
@@ -514,7 +513,7 @@ public class NewPrisonBossLevel extends Level {
 		tengu = new NewTengu(); //We want to keep track of tengu independently of other mobs, he's not always in the level.
 	}
 	
-	public Actor respawner() {
+	public Actor addRespawner() {
 		return null;
 	}
 	
@@ -583,6 +582,7 @@ public class NewPrisonBossLevel extends Level {
 				int cell = x+tenguCell.left+1 + (y+tenguCell.top+1)*width();
 				if (Blob.volumeAt(cell, StormCloud.class) == 0
 						&& Blob.volumeAt(cell, Regrowth.class) <= 9
+						&& Dungeon.level.plants.get(cell) == null
 						&& Actor.findChar(cell) == null) {
 					Level.set(cell, Terrain.SECRET_TRAP);
 					setTrap(new TenguDartTrap().hide(), cell);

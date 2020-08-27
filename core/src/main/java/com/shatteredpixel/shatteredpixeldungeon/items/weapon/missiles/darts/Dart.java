@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -149,8 +149,8 @@ public class Dart extends MissileWeapon {
 	}
 	
 	@Override
-	public int price() {
-		return super.price()/2; //half normal value
+	public int value() {
+		return super.value()/2; //half normal value
 	}
 	
 	private final WndBag.Listener itemSelector = new WndBag.Listener() {

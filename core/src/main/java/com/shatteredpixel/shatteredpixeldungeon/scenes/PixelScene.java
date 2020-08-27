@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,9 @@ public class PixelScene extends Scene {
 	private static ArrayList<Class<?extends Window>> savedWindows = new ArrayList<>();
 	private static Class<?extends PixelScene> savedClass = null;
 	
-	public void saveWindows(){
+	public synchronized void saveWindows(){
+		if (members == null) return;
+
 		savedWindows.clear();
 		savedClass = getClass();
 		for (Gizmo g : members.toArray(new Gizmo[0])){
@@ -148,7 +150,7 @@ public class PixelScene extends Scene {
 		}
 	}
 	
-	public void restoreWindows(){
+	public synchronized void restoreWindows(){
 		if (getClass().equals(savedClass)){
 			for (Class<?extends Window> w : savedWindows){
 				try{

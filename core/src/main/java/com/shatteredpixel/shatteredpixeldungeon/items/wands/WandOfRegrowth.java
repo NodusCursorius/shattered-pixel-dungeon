@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ public class WandOfRegrowth extends Wand {
 		float furrowedChance = overLimit > 0 ? (overLimit / (10f + Dungeon.hero.lvl)) : 0;
 
 		int chrgUsed = chargesPerCast();
-		int grassToPlace = Math.round((3.5f+buffedLvl()/2f)*chrgUsed);
+		int grassToPlace = Math.round((3.67f+buffedLvl()/3f)*chrgUsed);
 
 		//ignore cells which can't have anything grow in them.
 		for (Iterator<Integer> i = cells.iterator(); i.hasNext();) {
@@ -98,9 +98,15 @@ public class WandOfRegrowth extends Wand {
 					terr == Terrain.HIGH_GRASS ||
 					terr == Terrain.FURROWED_GRASS)) {
 				i.remove();
+			} else if (Char.hasProp(Actor.findChar(cell), Char.Property.IMMOVABLE)) {
+				i.remove();
+			} else if (Dungeon.level.plants.get(cell) != null){
+				i.remove();
 			} else {
-				Level.set( cell, Terrain.GRASS );
-				GameScene.updateMap( cell );
+				if (terr != Terrain.HIGH_GRASS && terr != Terrain.FURROWED_GRASS) {
+					Level.set(cell, Terrain.GRASS);
+					GameScene.updateMap( cell );
+				}
 				Char ch = Actor.findChar(cell);
 				if (ch != null){
 					processSoulMark(ch, chargesPerCast());
@@ -148,24 +154,21 @@ public class WandOfRegrowth extends Wand {
 		}
 
 		if (!cells.isEmpty() && Random.Float() > furrowedChance &&
-				(chrgUsed == 3 || (chrgUsed == 2 && Random.Int(2) == 0))){
+				(Random.Int(6) < chrgUsed)){ // 16%/33%/50% chance to spawn a seed pod or dewcatcher
 			int cell = cells.remove(0);
 			Dungeon.level.plant( Random.Int(2) == 0 ? new Seedpod.Seed() : new Dewcatcher.Seed(), cell);
 		}
 
-		if (!cells.isEmpty() && Random.Float() > furrowedChance && chrgUsed == 3){
-			int cell = cells.remove(0);
-			Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), cell);
-		}
-
 		if (!cells.isEmpty() && Random.Float() > furrowedChance &&
-				(chrgUsed >= 2 || (chrgUsed == 1 && Random.Int(2) == 0))){
+				(Random.Int(3) < chrgUsed)){ // 33%/66%/100% chance to spawn a plant
 			int cell = cells.remove(0);
 			Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), cell);
 		}
 
 		for (int cell : cells){
 			if (grassToPlace <= 0 || bolt.path.contains(cell)) break;
+
+			if (Dungeon.level.map[cell] == Terrain.HIGH_GRASS) continue;
 
 			if (Random.Float() > furrowedChance) {
 				Level.set(cell, Terrain.HIGH_GRASS);
@@ -203,7 +206,7 @@ public class WandOfRegrowth extends Wand {
 		int maxDist = 2 + 2*chargesPerCast();
 		int dist = Math.min(bolt.dist, maxDist);
 
-		cone = new ConeAOE( bolt.sourcePos, bolt.path.get(dist),
+		cone = new ConeAOE( bolt,
 				maxDist,
 				20 + 10*chargesPerCast(),
 				collisionProperties | Ballistica.STOP_TARGET);
@@ -352,7 +355,7 @@ public class WandOfRegrowth extends Wand {
 
 		private void setLevel( int lvl ){
 			wandLvl = lvl;
-			HP = HT = lvl*4;
+			HP = HT = 25 + 3*lvl;
 		}
 
 		public boolean inRange(int pos){
@@ -360,7 +363,7 @@ public class WandOfRegrowth extends Wand {
 		}
 
 		public float seedPreservation(){
-			return 0.25f + 0.05f*wandLvl;
+			return 0.40f + 0.04f*wandLvl;
 		}
 
 		@Override

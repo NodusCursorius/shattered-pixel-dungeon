@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.MovieClip;
 import com.watabou.noosa.NoosaScript;
-import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.tweeners.AlphaTweener;
@@ -340,7 +339,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		flashTime = FLASH_INTERVAL;
 	}
 	
-	public synchronized void add( State state ) {
+	public void add( State state ) {
 		switch (state) {
 			case BURNING:
 				burning = emitter();
@@ -394,7 +393,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		}
 	}
 	
-	public synchronized void remove( State state ) {
+	public void remove( State state ) {
 		switch (state) {
 			case BURNING:
 				if (burning != null) {

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,16 @@ public abstract class UpdateService {
 		public abstract void onConnectionFailed();
 	}
 
-	public abstract void checkForUpdate( UpdateResultCallback callback );
+	//whether the app is updateable via an ingame prompt (e.g. not a demo or an android instant app)
+	public abstract boolean isUpdateable();
+
+	public abstract void checkForUpdate( boolean useMetered, UpdateResultCallback callback );
 
 	public abstract void initializeUpdate( AvailableUpdateData update );
+
+	//whether the app installable via an ingame prompt (e.g. a demo, or an android instant app)
+	public abstract boolean isInstallable();
+
+	public abstract void initializeInstall();
 
 }

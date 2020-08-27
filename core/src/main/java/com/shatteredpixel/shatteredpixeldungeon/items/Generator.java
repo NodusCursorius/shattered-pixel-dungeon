@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,10 +139,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Whip;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.HeavyBoomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Bolas;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.FishingSpear;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ForceCube;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.HeavyBoomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Javelin;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Kunai;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
@@ -172,7 +172,6 @@ import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -470,22 +469,28 @@ public class Generator {
 	};
 	
 	private static HashMap<Category,Float> categoryProbs = new LinkedHashMap<>();
-	
-	public static void reset() {
+
+	public static void fullReset() {
+		generalReset();
+		for (Category cat : Category.values()) {
+			reset(cat);
+		}
+	}
+
+	public static void generalReset(){
 		for (Category cat : Category.values()) {
 			categoryProbs.put( cat, cat.prob );
-			if (cat.defaultProbs != null) cat.probs = cat.defaultProbs.clone();
 		}
 	}
 
 	public static void reset(Category cat){
-		cat.probs = cat.defaultProbs.clone();
+		if (cat.defaultProbs != null) cat.probs = cat.defaultProbs.clone();
 	}
 	
 	public static Item random() {
 		Category cat = Random.chances( categoryProbs );
 		if (cat == null){
-			reset();
+			generalReset();
 			cat = Random.chances( categoryProbs );
 		}
 		categoryProbs.put( cat, categoryProbs.get( cat ) - 1);
@@ -640,7 +645,7 @@ public class Generator {
 	}
 
 	public static void restoreFromBundle(Bundle bundle) {
-		reset();
+		fullReset();
 
 		if (bundle.contains(GENERAL_PROBS)){
 			float[] probs = bundle.getFloatArray(GENERAL_PROBS);

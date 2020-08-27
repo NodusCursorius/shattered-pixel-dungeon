@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
@@ -50,8 +49,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -226,8 +227,8 @@ public abstract class Mob extends Char {
 		//We are charmed and current enemy is what charmed us
 		} else if (buff(Charm.class) != null && buff(Charm.class).object == enemy.id()) {
 			newEnemy = true;
-		//we aren't amoked and current enemy is invulnerable to us
-		} else if (buff( Amok.class ) == null && enemy.isInvulnerable(getClass())) {
+		//we aren't amoked, current enemy is invulnerable to us, and that enemy isn't affect by aggression
+		} else if (buff( Amok.class ) == null && enemy.isInvulnerable(getClass()) && enemy.buff(StoneOfAggression.Aggression.class) == null) {
 			newEnemy = true;
 		}
 
@@ -546,7 +547,14 @@ public abstract class Mob extends Char {
 		if (surprisedBy(enemy) && Dungeon.hero.canSurpriseAttack()) {
 			Statistics.sneakAttacks++;
 			Badges.validateRogueUnlock();
-			Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+			//TODO this is somewhat messy, it would be nicer to not have to manually handle delays here
+			// playing the strong hit sound might work best as another property of weapon?
+			if (Dungeon.hero.belongings.weapon instanceof SpiritBow.SpiritArrow
+				|| Dungeon.hero.belongings.weapon instanceof Dart){
+				Sample.INSTANCE.playDelayed(Assets.Sounds.HIT_STRONG, 0.125f);
+			} else {
+				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+			}
 			if (enemy.buff(Preparation.class) != null) {
 				Wound.hit(this);
 			} else {

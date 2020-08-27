@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2020 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,6 +100,18 @@ public class LotusSprite extends MobSprite {
 	@Override
 	public void die() {
 		super.die();
+
+		if (grassVfx != null){
+			for (Emitter e : grassVfx){
+				e.on = false;
+			}
+			grassVfx = null;
+		}
+	}
+
+	@Override
+	public void kill() {
+		super.kill();
 
 		if (grassVfx != null){
 			for (Emitter e : grassVfx){

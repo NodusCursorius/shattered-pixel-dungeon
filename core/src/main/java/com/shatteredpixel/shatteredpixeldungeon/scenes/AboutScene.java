@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,12 +94,18 @@ public class AboutScene extends PixelScene {
 
 		//*** Shattered Pixel Dungeon Credits ***
 
+		String shpxLink = "https://ShatteredPixel.com";
+		//tracking codes, so that the website knows where this pageview came from
+		shpxLink += "?utm_source=shatteredpd";
+		shpxLink += "&utm_medium=about_page";
+		shpxLink += "&utm_campaign=ingame_link";
+
 		CreditsBlock shpx = new CreditsBlock(true, Window.SHPX_COLOR,
 				"Shattered Pixel Dungeon",
 				Icons.SHPX.get(),
 				"Developed by: _Evan Debenham_\nBased on Pixel Dungeon's open source",
 				"ShatteredPixel.com",
-				"https://ShatteredPixel.com");
+				shpxLink);
 		shpx.setRect((w - fullWidth)/2f, freestockmusic.bottom() + 8, 120, 0);
 		content.add(shpx);
 

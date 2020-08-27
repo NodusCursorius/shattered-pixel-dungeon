@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -241,13 +241,17 @@ public class NewTengu extends Mob {
 			if (level.state() == NewPrisonBossLevel.State.FIGHT_START) {
 				
 				level.cleanTenguCell();
-				
+
+				int tries = 100;
 				do {
 					newPos = ((NewPrisonBossLevel)Dungeon.level).randomTenguCellPos();
-				} while ( level.trueDistance(newPos, enemy.pos) <= 3.5f
+					tries--;
+				} while ( tries > 0 && (level.trueDistance(newPos, enemy.pos) <= 3.5f
 						|| level.trueDistance(newPos, Dungeon.hero.pos) <= 3.5f
-						|| Actor.findChar(newPos) != null);
-				
+						|| Actor.findChar(newPos) != null));
+
+				if (tries <= 0) newPos = pos;
+
 				if (level.heroFOV[pos]) CellEmitter.get( pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 				
 				sprite.move( pos, newPos );
@@ -270,7 +274,7 @@ public class NewTengu extends Mob {
 								level.distance(newPos, enemy.pos) > 7 ||
 								level.distance(newPos, Dungeon.hero.pos) < 5 ||
 								level.distance(newPos, Dungeon.hero.pos) > 7 ||
-								level.distance(newPos, pos) < 6 ||
+								level.distance(newPos, pos) < 5 ||
 								Actor.findChar(newPos) != null ||
 								Dungeon.level.heaps.get(newPos) != null);
 				
