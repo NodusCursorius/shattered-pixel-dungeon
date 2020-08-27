@@ -228,7 +228,7 @@ public class ChangesScene extends PixelScene {
 			}
 		};
 		if (changesSelected == 4) btnAsh.textColor(Window.TITLE_COLOR);
-		btnAsh.setRect(btnOld.right() + 1, btn0_8.top(), 32, 14);
+		btnAsh.setRect(list.left()-4f, list.top()-20, 32, 14);
 		add(btnAsh);
 
 		Archs archs = new Archs();

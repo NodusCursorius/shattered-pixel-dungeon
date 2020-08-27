@@ -77,10 +77,6 @@ public enum HeroClass {
 
 		initCommon( hero );
 
-		DewVial dew = new DewVial();
-		dew.collect();
-		Dungeon.quickslot.setSlot(3, dew );
-
 		switch (this) {
 			case WARRIOR:
 				initWarrior( hero );
@@ -111,6 +107,11 @@ public enum HeroClass {
 		if (Dungeon.isChallenged(Challenges.NO_FOOD)){
 			new SmallRation().collect();
 		}
+
+		DewVial dew = new DewVial();
+		dew.identify().collect();
+		Dungeon.quickslot.setSlot(3, dew );
+		Dungeon.LimitedDrops.DEW_VIAL.drop();
 
 		new ScrollOfIdentify().identify();
 
