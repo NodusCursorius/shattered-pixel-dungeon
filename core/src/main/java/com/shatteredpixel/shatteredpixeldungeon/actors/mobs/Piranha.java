@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PiranhaSprite;
 import com.watabou.utils.PathFinder;
@@ -84,15 +85,17 @@ public class Piranha extends Mob {
 	public int drRoll() {
 		return Random.NormalIntRange(0, Dungeon.depth);
 	}
-	
+
 	@Override
-	public int defenseSkill( Char enemy ) {
-		enemySeen = state != SLEEPING
-				&& this.enemy != null
-				&& fieldOfView != null
-				&& fieldOfView[this.enemy.pos]
-				&& this.enemy.invisible == 0;
-		return super.defenseSkill( enemy );
+	public boolean surprisedBy(Char enemy) {
+		if (enemy == Dungeon.hero && ((Hero)enemy).canSurpriseAttack()){
+			if (fieldOfView == null || fieldOfView.length != Dungeon.level.length()){
+				fieldOfView = new boolean[Dungeon.level.length()];
+				Dungeon.level.updateFieldOfView( this, fieldOfView );
+			}
+			return state == SLEEPING || !fieldOfView[enemy.pos] || enemy.invisible > 0;
+		}
+		return super.surprisedBy(enemy);
 	}
 	
 	@Override

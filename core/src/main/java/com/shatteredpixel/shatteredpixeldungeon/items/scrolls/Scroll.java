@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -189,13 +190,11 @@ public abstract class Scroll extends Item {
 	}
 	
 	public abstract void doRead();
-	
-	//currently unused. Used to be used for unstable spellbook prior to 0.7.0
-	public void empoweredRead(){}
 
 	protected void readAnimation() {
 		curUser.spend( TIME_TO_READ );
 		curUser.busy();
+		Invisibility.dispel();
 		((HeroSprite)curUser.sprite).read();
 	}
 	

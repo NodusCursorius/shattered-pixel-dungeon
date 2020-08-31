@@ -520,8 +520,8 @@ public class GameScene extends PixelScene {
 				}
 			}
 		}
-		
-		freezeEmitters = false;
+
+		Emitter.freezeEmitters = false;
 		
 		scene = null;
 		Badges.saveGlobal();
@@ -562,7 +562,7 @@ public class GameScene extends PixelScene {
 
 		super.update();
 		
-		if (!freezeEmitters) water.offset( 0, -5 * Game.elapsed );
+		if (!Emitter.freezeEmitters) water.offset( 0, -5 * Game.elapsed );
 
 		if (!Actor.processing() && Dungeon.hero.isAlive()) {
 			if (actorThread == null || !actorThread.isAlive()) {
@@ -778,8 +778,8 @@ public class GameScene extends PixelScene {
 	
 	public static void add( Mob mob ) {
 		Dungeon.level.mobs.add( mob );
-		Actor.add( mob );
 		scene.addMobSprite( mob );
+		Actor.add( mob );
 	}
 
 	public static void addSprite( Mob mob ) {
@@ -788,8 +788,8 @@ public class GameScene extends PixelScene {
 	
 	public static void add( Mob mob, float delay ) {
 		Dungeon.level.mobs.add( mob );
-		Actor.addDelayed( mob, delay );
 		scene.addMobSprite( mob );
+		Actor.addDelayed( mob, delay );
 	}
 	
 	public static void add( EmoIcon icon ) {

@@ -23,10 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
@@ -82,19 +78,10 @@ public class ScrollOfMagicMapping extends Scroll {
 		
 		SpellSprite.show( curUser, SpellSprite.MAP );
 		Sample.INSTANCE.play( Assets.Sounds.READ );
-		Invisibility.dispel();
 		
 		setKnown();
 
 		readAnimation();
-	}
-	
-	@Override
-	public void empoweredRead() {
-		doRead();
-		Buff.affect( curUser, MindVision.class, MindVision.DURATION );
-		Buff.affect( curUser, Awareness.class, Awareness.DURATION );
-		Dungeon.observe();
 	}
 	
 	@Override
